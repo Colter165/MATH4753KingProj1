@@ -1,0 +1,561 @@
+---
+title: "Assignment1"
+author: "Colter King"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: yes
+    toc_float: yes
+---
+
+I completed 15/15 of the problems for this assignment
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problems
+
+
+## 1
+
+The final grades will be calculated using the following scaling:  
+  Four assignments: 15%  
+  Laboratories and class exercises: 10%  
+  Two projects: 10%  
+  In class quizzes: 10%  
+  Chapter quizzes: 5%  
+  Mid-Term Exams: 20%  
+  Final Exam: 30%  
+  
+Final letter grades are as follows: A (>=90; B>=80; C>=60; D>=50; F<50)
+
+## 2
+
+### a
+
+The coplot below show the WEIGHT vs. LENGTH  of the SPECIES of the fish given the RIVER while categorizing the mile marker of the fish by colorized points.
+```{r}
+ddt <- read.csv("DDT.csv")
+with(ddt, coplot(LENGTH~WEIGHT|RIVER*SPECIES, col=MILE,))
+```
+
+### b
+
+The three lower left plots show a positive trend line between the LENGTH vs. WEIGHT of the CATFISH in the FCM, LCM, and SCM parts of the river. This displays the trend that as the weight of the catfish increases, the length also tends to increase. The data also shows that these fish were found at the same mile markers within their section of the river.
+
+### c
+Line A, m=with(ddt, as.numeric(factor(MILE))), reads in the MILE data from DDT.csv and feeds it through the factor() function that turns the MILE data into categorical data. This then goes through as.numeric() which reads the categorical data and and sets it so it is read numeric values. the vector m essential stores the MILE data as categorical data represented by readable integer values.
+
+### d
+Line B, length(unique(m)), goes through vector m that we just created that stores integer categorical values, and removes any duplicate values so that there is only one of each categorical data type left. The length(function) then goes through and reads how many values are left from the vector and returns that value to give us the total number of unique categorical data values are represented in the MILE data set.
+
+### e
+The top six plots are empty because the coplot is designed to display data for a species of fish in a given part of the river. For these six plot spaces, there is now data to display because there is no fish of the LMBASS and SMBUFFALO species in the FCM, LCM, and SCM parts of the river.
+
+### f
+Below we subset the data so that we only se the CCATFISH in the FCM par of the river. We the take the mean of that DDT data which follows.
+```{r}
+FCM.CATFISH = subset(ddt, RIVER== "FCM" & SPECIES== "CCATFISH")
+mean(FCM.CATFISH$DDT)
+```
+
+## 3:MS 1.14
+
+List whether the following are *Quantitative* or *Qualitative* variables
+
+### a
+
+Length of Maximum span(feet): *Quantitative*
+
+### b
+
+Number of vehicle lanes: *Quantitative*
+
+### c
+
+Toll bridge(yes or no): *Qualitative*
+
+### d
+
+Average daily traffic: *Quantitative*
+
+### e
+
+Condition of deck(good,fair, or poor): *Qualitative*
+
+### f
+
+Bypass or detour length(miles): *Quantitative*
+
+### g
+
+Route type(interstate, U.S., state, country, or city): *Qualitative*
+
+## Task 4
+
+### a
+
+There are four random sampling designs. There is *simple random sampling* and three more complex which are *stratified random sampling*, *cluster sampling*, and *systematic sampling*.
+
+### b
+
+***simple random sampling***: a sample set up such that every sample size *n* has an equal chance of selection
+
+***stratified random sampling***: the grouping of units with similar characteristics or *strata* within a population before sampling each strata individually and then recombining the samples, ensuring each strata is represented
+
+***cluster sampling***: the sampling of all units within a randomly select number of natural groupings or *clusters* 
+
+***systematic sampling***: the systematic process of selecting every *k*th unit from all experimental units for analysis
+
+## 5:MS 1.15
+
+```{r}
+mtbe <- read.csv("MTBE.csv")
+mtbe[sample(1:nrow(mtbe), 5, replace = FALSE),]
+```
+
+### a
+
+```{r}
+mtbe = na.omit(mtbe)
+depth = mtbe[mtbe$Aquifier == "Bedrock",]$Depth
+sd(depth)
+```
+
+## 6:MS 1.16
+
+```{r}
+earthquake <- read.csv("EARTHQUAKE.csv")
+earthquake[sample(1:nrow(earthquake), 30, replace = FALSE),]
+```
+
+### a
+
+```{r}
+plot(ts(earthquake$MAG))
+```
+
+```{r}
+median(earthquake$MAG)
+```
+
+## 7
+
+### a
+
+The data collection method is a designed experiment that utilizes stratified sampling.
+
+### b
+
+The population is all fish of the Tennessee River(Alabama).
+
+### c
+The qualitative variables name the location and fish and are as follows:
+
+River: *TR*, *FC*, *LC*, and *SC*
+
+Species: *CCATFISH*,*LMBASS*, and *SMBUFFALO*
+
+Mile
+
+## 8:MS 2.1
+
+### a
+
+The type of graph used is a bar graph.
+
+### b
+
+The variable measured is Robotic Limbs which breaks down into Legs and Wheels.
+
+### c
+
+Based on the graph, robots with Legs Only are the currently most used social robot design.
+
+### d
+
+```{r}
+pareto<-function(x,mn="Pareto barplot",...){  # x is a vector
+  x.tab=table(x)
+  xx.tab=sort(x.tab, decreasing=TRUE,index.return=FALSE)
+  cumsum(as.vector(xx.tab))->cs
+  length(x.tab)->lenx
+  bp<-barplot(xx.tab,ylim=c(0,max(cs)),las=2)
+  lb<-seq(0,cs[lenx],l=11)
+  axis(side=4,at=lb,labels=paste(seq(0,100,length=11),"%",sep=""),las=1,line=-1,col="Blue",col.axis="Red")
+  for(i in 1:(lenx-1)){
+    segments(bp[i],cs[i],bp[i+1],cs[i+1],col=i,lwd=2)
+}
+title(main=mn,...)
+}
+```
+
+```{r}
+limb.data = c(15, 8, 63, 20)
+limb.labels = c("None", "Both", "Legs", "Wheels")
+limb.percentages = as.data.frame(matrix(data = limb.data/sum(limb.data), nrow = 4, ncol = 1), row.names = limb.labels)
+limb.percentages
+```
+
+### e
+
+```{r}
+limb.rawdata = rep(limb.labels, limb.data)
+pareto(limb.rawdata)
+```
+
+## 9:MS 2.4
+
+### a
+
+```{r}
+security.breaches = c(32, 6, 12)
+security.programs = c("Windows", "Explorer", "Office")
+pie(security.breaches, labels=security.programs, main ="Microsoft 2012 program security breaches", col = 10:12)
+```
+
+### b
+
+Based on the Pareto barplot below, we can tell that Microsoft should look into Remote Code Execution(RCE) repercussions as it accounts for nearly half of their overall expected outcomes from security breaches.
+```{r}
+security.data = c(6, 8, 22,  3, 11)
+security.labels = c("DoS","Info leak","RCE", "Spoofing", "Elevation")
+security.issues= rep(security.labels, security.data)
+pareto(security.issues)
+```
+
+## 10:MS 2.10
+
+```{r}
+swdefects = read.csv("SWDEFECTS.csv")
+library(plotrix)
+swd.table = table(swdefects$defect)
+rswd.table = swd.table/sum(swd.table)
+round(rswd.table,2)
+pie3D(rswd.table,labels=list("Okay", "Defective"), main = "Pie Chart of SWD", col = c("Green2","Red2"))
+```
+
+## 11:MS 2.72
+
+| Class | Class Interval | Data Tabulation | Frequency | Relative Frequency |
+|:-----:|:--------------:|:---------------:|:---------:|:------------------:|
+| 1 | [8.0000-8.2889] | 8.05  | 1 | 0.0333 |
+| 2 | (8.2889-8.5778] | - | 0 | 0.0000 |
+| 3 | (8.5778-8.8667] | 8.72,8.72,8.80 | 3 | 0.0333 |
+| 4 | (8.8667-9.1556] | - | 0 | 0.0000 |
+| 5 | (9.1556-9.4444] | - | 0 | 0.0000 |
+| 6 | (9.4444-9.7333] | 9.55,9.70,9.73  | 3 | 0.1000 |
+| 7 | (9.7333-10.022] | 9.80,9.80,9.84,9.84, 9.87,9.87,9.95,9.97, 9.98,9.98,10.00,10.01, 10.02  | 13 | 0.4333 |
+| 8 | (10.022-10.311] | 10.03,10.05,10.05,10.12, 10.15,10.15,10.26,10.26 10.29  | 9 | 0.3000 |
+| 9 | (10.311-10.600] | 10.55  | 1 | 0.0333 |
+
+```{r}
+voltage.location = read.csv("VOLTAGE.csv")
+voltage.old = voltage.location[voltage.location$LOCATION == "OLD",]$VOLTAGE
+voltage.new = voltage.location[voltage.location$LOCATION == "NEW",]$VOLTAGE
+
+voltage.hist = function(v, bins , maintitle){
+  right.stop = 10.6
+  left.stop = 8
+  range = right.stop-left.stop
+  bin.size = range/bins
+  x = seq(left.stop, right.stop, by = bin.size)
+  cuts = cut(v,breaks = x)
+  tab = table(cuts)
+  barplot(tab /sum(tab), space= 0 , main = maintitle, las = 2, ylab = "Relative Frequency")
+}
+voltage.hist(voltage.old,9, "Histogram of Old Location Voltage")
+```
+
+
+### b
+
+```{r}
+stem(voltage.old)
+```
+
+I personally find the histogram more informative on where most of the voltage readings lie. While both show the same general form, the histogram gives me a better idea on how often voltage readings fall into a certain range which is easer to assess than eyeballing it from the stem plot.
+
+### c
+
+```{r}
+voltage.hist(voltage.new,9, "Histogram of New Location Voltage")
+```
+
+### d
+
+Based on the histograms from part a and c, it is clear the the old location produced better readings than the new site. This is to say that the old location had less frequent readings below 9.2V (about a 0.10-0.15 relative frequency) compared to the new locations that (about a 0.25 relative frequency). This means that the new process is worse than the old process an shouldn't be established locally.
+
+### e
+
+The mean of the voltage reading at the old factory is:
+
+```{r}
+mean(voltage.old)
+```
+
+The median of the voltage readings at the old factory is:
+
+```{r}
+median(voltage.old)
+```
+
+The mode of the voltage readings at the new factory is:
+
+```{r}
+mode.stat <- function(x){
+  ux = unique(x)
+  ux[which.max(tabulate(match(x,ux)))]
+}
+mode.stat(voltage.old)
+```
+
+The mean of the voltage readings at the new factory is:
+
+```{r}
+mean(voltage.new)
+```
+
+The median of the voltage readings at the new factory is:
+
+```{r}
+median(voltage.new)
+```
+
+The mode of the voltage reading at the new factory is:
+
+```{r}
+mode.stat(voltage.new)
+```
+The median is the best measure of central tendency in this case as it gives us the best idea of what to predict as common data points without the interference of outlier data, or skew of data, that is represented within the mean. The mode would only tell us what the most common exact reading is, which we aren't interested in.
+
+### f
+
+The z-score for a reading of 10.50 at the old location is:
+
+```{r}
+(10.50 - mean(voltage.old))/sd(voltage.old)
+```
+
+### g
+
+The z-score for a reading of 10.50 at the new location is:
+
+```{r}
+(10.50 - mean(voltage.new))/sd(voltage.new)
+```
+
+### h
+
+Based on results from parts f and g, a reading of 10.50 is more likely to occur at the old location as it had a z-score less than that of the new location. This is to say that the z-score for the old location indicates that the reading 10.50 is closer to the old locations data mean.
+
+### i
+
+```{r}
+boxplot(voltage.old, main = "Voltage of Old Location", xlab = "Voltage", horizontal = TRUE)
+```
+
+Based on the boxplot above, there appears to be 4 possible outliers.
+
+### j
+
+Any calculated outliers (i.e. readings with |z|>3) will display below:
+```{r}
+voltage.old.z3 = abs((voltage.old - mean(voltage.old))/sd(voltage.old))
+voltage.old[voltage.old.z3 > 3]
+```
+
+### k
+
+```{r}
+boxplot(voltage.new, main = "Voltage of New Location", xlab = "Voltage", horizontal = TRUE)
+```
+
+No outliers appear to be displayed through the boxplot for the New Location.
+
+### l
+
+If any outliers (i.e. readings with |z|>3) they will display below:
+
+```{r}
+voltage.new.z3 = abs((voltage.new - mean(voltage.new))/sd(voltage.new))
+voltage.new[voltage.new.z3 > 3]
+```
+
+### m
+
+```{r}
+boxplot(voltage.old, voltage.new, horizontal = TRUE, names = c("Old", "New"), main = "New vs Old Location", xlab = "Voltage")
+```
+
+
+
+## 12:MS 2.73
+
+The easiest way to get an interval of data to contain 95% of your data is assume our distribution in normal and follow the empirical rule that says that approximately 95% of our data will fall within the first two standard deviations of the averaged data.
+
+```{r}
+pipe.rough = read.csv("ROUGHPIPE.csv")
+pipe.avg = mean(pipe.rough$ROUGH)
+pipe.sd = sd(pipe.rough$ROUGH)
+c(pipe.avg - 2*pipe.sd, pipe.avg + 2*pipe.sd)
+```
+
+From the empirical rule we get the interval shown above. However, to check if the data resembles a normal distribution, we can confirm by inspecting simple histogram below.
+
+```{r}
+hist(pipe.rough$ROUGH, xlab = "Roughness", main = "Pipe Roughness")
+```
+
+As seen in the histogram, our data doesn't resemble normal distribution, and clearly can't use the empirical rule to make assumptions. Because of this, we should look into alternate methods, such as Chebshev's Theorem, to make more general assumptions.
+
+For Chebshev's Theorem to created an interval of at least 95% of the data, we have k=5 so that we are guaranteed to have interval to contain at least 96% of our data which is given below.
+
+```{r}
+c(pipe.avg - 5*pipe.sd, pipe.avg + 5*pipe.sd)
+```
+
+As we can see, the by making the interval contain 5 standard deviations instead of just 2, we have greatly increased the interval size causing it to contain a negative lower value and an upper value that is beyond our maximum value in our data. So, while Chebshev's Theorem provides us with an iterval that is guaranteed to have 96% of our data, it goes beyond the logical bounds of our data set as negative roughness doesn't have much meaning and the predicated maximum interval bound is early twice the maximum value of our data set.
+
+## 13:MS 2.80
+
+### a
+
+The mean or average ant species is the expected number of species found in any region and is shown below.
+
+```{r}
+gobi.ants = read.csv("GOBIANTS.csv")
+gobi.species = gobi.ants$AntSpecies
+mean(gobi.species)
+```
+
+The median of the ant species is the number that rests equally number of values away from our maximum and minimum values and is the "middle" value. It is given below.
+```{r}
+median(gobi.species)
+```
+
+The mode of the ant species the most common occurring value among all the regions from our data set and is shown below.
+
+```{r}
+mode.stat(gobi.species)
+```
+
+### b
+
+The best measure of central tendency to use among this data set would be the median. The mode isn't good to use because there is only 11 values to choose from and mode is better used for larger data sets. The mean is majorly skewed by two greatly larger values compared to the other values that are within a short range of each other. While the mode and median both have the same values, the median helps eliminate the outlier values that skew the mean and give us an idea as to where the values cluster between the greates the lowest values. 
+
+### c
+
+The mean of the plant distribution among the Dry Steppe is:
+
+```{r}
+gobi.plants.dry = gobi.ants[gobi.ants$Region == "Dry Steppe",]$PlantCov
+mean(gobi.plants.dry)
+```
+
+The median of plant distribution among the Dry Steppe is:
+
+```{r}
+median(gobi.plants.dry)
+```
+
+The mode of plant distribution among the Dry Steppe is:
+
+```{r}
+mode.stat(gobi.plants.dry)
+```
+
+### d
+
+The mean of the plant distribution among the Gobi Desert is:
+
+```{r}
+gobi.plants.desert = gobi.ants[gobi.ants$Region == "Gobi Desert",]$PlantCov
+mean(gobi.plants.desert)
+```
+
+The median of plant distribution among the Dry Steppe is:
+
+```{r}
+median(gobi.plants.desert)
+```
+
+The mode of plant distribution among the Dry Steppe is:
+
+```{r}
+mode.stat(gobi.plants.desert)
+```
+
+### e
+
+Based on our results from parts c and d, we can see there is a large difference between the central tendencies of the plant coverage in the Gobi Desert and Dry Steppe regions. In the Dry Steppe region, we see a more consistent plant coverage that is higher than that of Gobi Desert with a distribution around 40. The Gobi Desert appears to have a lower coverage at around 28 given by it central tendencies, but also less consistent as shown by an average higher than its median and a mode that is also higher. This tells us that the distribution in the Gobi Desert is likely to have values that range further than that shown by the central tendency calculation for the Dry Steppe.
+
+## 14:MS 2.84
+
+### a
+
+A histogram is used to show the velocity distribution
+
+```{r}
+galaxy = read.csv("GALAXY2.csv")
+with(galaxy, hist(VELOCITY, breaks = 10))
+```
+
+### b
+
+Based on the histogram in part a, we can tell that there is two distinct peaks separated by a void gap giving evidence to the fact that Galaxy A1775 is likely a double cluster.
+
+### c
+
+Because we saw two different clusters in part a, the mean and standard deviations will be made separatly for each cluster. Cluster A1775A is difined as any velocities less than or equal to 21500 km/s and cluster A1775B is any velocities greater than 21500 km/s.
+
+The mean velocity for cluster A1775A is:
+
+```{r}
+galaxy.A = galaxy$VELOCITY[galaxy$VELOCITY <= 21500] 
+mean(galaxy.A)
+```
+
+The standard deviation for cluster A1775A is:
+
+```{r}
+sd(galaxy.A)
+```
+
+The mean velocity for cluster A1775B is:
+
+```{r}
+galaxy.B = galaxy$VELOCITY[galaxy$VELOCITY > 21500] 
+mean(galaxy.B)
+```
+
+The standard deviation for cluster A1775B is:
+
+```{r}
+sd(galaxy.B)
+```
+
+### d
+
+Z-score for cluster A1775A:
+
+```{r}
+(20000 - mean(galaxy.A))/sd(galaxy.A)
+```
+
+Z-score for cluster A1775B:
+
+```{r}
+(20000 - mean(galaxy.B))/sd(galaxy.B)
+```
+
+Based on the z score from each cluster, it is ver evident that the velocity likely came for cluster A1775A as it's z-score is much less than the z-score form cluster A1775B.
+
+## 15
+
+```{r}
+library(ggplot2)
+ggplot(ddt, aes(x = RIVER, y = LENGTH)) + geom_boxplot(aes(fill = SPECIES)) + ggtitle("Colter King:Fish Length vs. River Boxplot ")
+```
+

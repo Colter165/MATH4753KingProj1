@@ -1,0 +1,310 @@
+---
+title: "Lab3"
+author: "Colter King"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Parts
+
+## Task 1
+
+```{r}
+getwd()
+```
+
+## Task 2
+
+```{r}
+spruce = read.csv("SPRUCE.csv")
+tail(spruce)
+```
+
+## Task 3
+
+### Height vs. Diameter Trendscatter
+
+```{r}
+library(s20x)
+trendscatter(Height~BHDiameter,f=0.5,data=spruce)
+```
+
+### Linear model, Residuals, and Fitted Height
+
+```{r}
+spruce.lm =with(spruce,lm(Height~BHDiameter))
+height.res = residuals(spruce.lm)
+height.fit=fitted(spruce.lm)
+```
+
+### Residuals vs. Fit Plot
+
+```{r}
+plot(height.fit,height.res,xlab = "Height Fit", ylab = "Height Residuals", main = "Residuals vs. Fit")
+
+
+```
+
+### Residuals vs. Fit Trendscatter
+
+```{r}
+trendscatter(height.fit,height.res, xlab = "Height Fit", ylab = "Height Residuals", main = "Residuals vs. Fit Trendscatter" )
+```
+
+The plot above shows a trendline that is parabolic and upside down. It follows a positive trend until the middle of the Height Fit before following a similarly steep slope, but in the negative direction. This is different form the first Trendscatter plot where it followed a positive slope before flattening out midway through.
+
+### Residuals Plot
+
+```{r}
+plot(spruce.lm, which =1)
+```
+
+```{r}
+normcheck(spruce.lm,shapiro.wilk = TRUE)
+```
+
+From the Shapiro-Wilk test, we get a p-value of 0.29. Since this value is greater than 0.05, by a pretty large margin, we accept the null hypothesis. In this case, our null hypothesis states that our distribution of error in Height vs. Diameter is normal.
+
+```{r}
+round(mean(height.res))
+```
+
+As seen above, we get the the mean of the residuals is close to zero.
+
+As seen from the residuals vs. fitted values test and its parabolic shape, we can tell that the straight line test is definitely not a valid application for defining this data set. We should be seeing more of a linear trendscatter on our plot and should make adjustments to our data interpretations better describe it.
+
+## Task 4
+
+```{r}
+quad.lm = lm(Height~BHDiameter + I(BHDiameter^2),data=spruce)
+summary(quad.lm)
+coef(quad.lm)
+```
+
+### Height vs. BHDiameter Quadratic Trendline
+
+```{r}
+plot(spruce)
+
+myplot = function (x){
+  quad.lm$coef[1] + quad.lm$coef[2]*x + quad.lm$coef[3]*x^2
+  
+}
+curve(myplot, lwd = 2, col = "BLUE2", add = TRUE)
+```
+
+### Residuals vs. Fitted
+
+```{r}
+quick.fit = fitted(quad.lm)
+
+plot(quad.lm, which = 1)
+```
+
+```{r}
+normcheck(quad.lm,shapiro.wilk = TRUE)
+```
+
+The p value for is 0.684 which is greater than 0.05, so we accept the null hypothesis. The null hypothesis is that the distribution of the residuals is normal. In this case with the quadratic line, the residuals follow a very even normal distribution, even better than the linear model in Task 3.
+
+## Task 5
+
+```{r}
+summary(quad.lm)
+```
+
+From the summary above, we gather that $\hat{\beta}_0 = 0.86896$ $\hat{\beta}_1 = 1.469592$ $\hat{\beta}_2 = -0.027457$.
+
+### Interval Estimations
+
+```{r}
+ciReg(quad.lm)
+```
+
+### Equation of Fitted Line and Predictions
+
+$$\hat{Height} = 0.86896 + 1.469592x -0.027457x^{2}$$
+
+The following are predicted values for diameters 15, 18, and 20 using the equation above.
+
+```{r}
+predict(quad.lm, data.frame(BHDiameter = c(15,18,20)))
+```
+
+### Comparing predictions
+
+The following are the same predictions for the linear model.
+
+```{r}
+predict(spruce.lm, data.frame(BHDiameter = c(15,18,20)))
+```
+
+When we compare our quadratic predictions to the linear, we see that the quadratic predictions are larger than the linear models.
+
+### Multiple R squared value comparisons
+
+```{r}
+summary(spruce.lm)$r.squared
+```
+
+The multiple $R^{2}$ value of the quadratic model's is 0.7741 which is higher than the linear model's value of 0.6569146. This tells us how well the data sets are at being models themselves. In this case, the quadratic is better than the linear becuase it is a higher value.
+
+### Adjusted R squared value comparisons
+
+```{r}
+summary(spruce.lm)$adj.r.squared
+```
+
+The adjusted $R^{2}$ value for the quadratic equation is 0.7604 which, again, is higher than the linear equations value of 0.6468239. The adjusted $R^{2}$ value represents how well the data fits the model when you add additional predictors to the model. If the value goes down, if the predictors imrovement of the model was less than expected by chance. The quadratic predictor seems to be better as it has a higher value than the linear model.
+
+The quadratic model, quad.lm, explains the most variability in height compared to the linear model as both of its Multiple and Adjusted $R^{2}$ vales are greater than that of the linear model.
+
+```{r}
+anova(spruce.lm, quad.lm)
+```
+
+The anova function, comparing the spruce.lm to the more complex quad.lm, has a p value of 0.0002269 which is less than 0.05 meaning we reject the null hypotheses. The null hypothesis in this anova function says that the $\beta^{2}$ is zero. This tells us that the $\beta^{2}$ is not zero and is significant leading me to beleive that the quad.lm is better at modeling the data.
+
+### TSS, MSS, RSs calculations
+
+The RSS, MSS, and TSS values are as follows respectively
+
+```{r}
+height.qfit =  fitted(quad.lm)
+RSS=with(spruce, sum((Height-height.qfit)^2))
+RSS
+MSS = with(spruce, sum((height.qfit-mean(Height))^2))
+MSS
+TSS = with(spruce, sum((Height-mean(Height))^2))
+TSS
+```
+
+We can tell these numbers are accurate as the sum of MSS and RSS is equal to TSS.
+
+The value of MSS/TSS is:
+
+```{r}
+MSS/TSS
+```
+
+which is the value of our multiple $R^{2}$.
+
+## Task 6
+
+```{r}
+cooks20x(quad.lm, main = "Cook's Distance plot for quad.lm")
+```
+
+The Cooks distance is used to measure how great of an impact a piece of data has on influencing, or skewing, the date's fitted response trend. It tells us which points may be possible outliers to the data that could possibly be removed to created a better model. This can be tested by removing the specified data from the set and seeing if the $R^{2}$ value increases
+
+Based on the plot above, observation number 24 has the greatest influence on the data by a significant margin, followed by 18 and 21.
+
+### Quad2.lm
+
+Quad2.lm
+
+```{r}
+quad2.lm =  lm(Height~BHDiameter + I(BHDiameter^2), data = spruce[-24,])
+summary(quad2.lm)
+```
+
+Quad.lm
+
+```{r}
+summary(quad.lm)
+```
+
+Comparing quad2.lm to quad.lm, we see that quad2.lm has a median closer to the zero and has a higher multiple and adjusted $R^{2}$ values than quad.lm. From this we can gather that the Cook's plot was accurate in the fact the object 24 has a great influence on the model.
+
+## Task 7
+
+### Proof
+
+The two lines share a common point $x_{k}$
+$l_{1}: y=\beta_{0}+\beta_{1}x$
+$l_{2}: y=\beta_{0}+\delta+(\beta_{1}+\beta_{2})x$
+
+We set the equations equal to each other after plugging in $x_{k}$
+
+$y_{k} = \beta_{0}+\beta_{1}x_{k}=\beta_{0}+\delta+(\beta_{1}+\beta_{2})x_{k}$
+
+Distribute the $x_{k}$
+
+$\beta_{0}+\beta_{1}x_{k}=\beta_{0}+\delta+\beta_{1}x_{k}+\beta_{2}x_{k}$
+
+$\beta_{0}$ and $\beta_{1}x_{k}$ cancle out
+
+$0=\delta+\beta_{2}x_{k}$
+
+So we can say
+
+$\delta=-\beta_{2}x_{k}$
+
+Lets look back at $l_{2}$
+
+$l_{1}: y=\beta_{0}+\delta+(\beta_{1}+\beta_{2})x$
+
+We substitute in delta to the equation
+
+$l_{1}: y=\beta_{0}-\beta_{2}x_{k}+(\beta_{1}+\beta_{2})x$
+
+Distribute out the $x$
+
+$l_{2}: y=\beta_{0}-\beta_{2}x_{k}+\beta_{1}x+\beta_{2}x$
+
+We rearrange like terms
+
+$l_{2}: y=\beta_{0}+\beta_{1}x+\beta_{2}x-\beta_{2}x_{k}$
+
+Factor out $\beta_{2}$
+
+$l_{2}: y=\beta_{0}+\beta_{1}x+\beta_{2}(x-x_{k})$
+
+We now have a formula of $l_{2}$ that describes and ajusted $l_{1}} with a factor of $\beta_{2}$.
+We can now use an indicator that will adjust the line at $x_{k}$ based on the indicator I()
+
+$l_{2}: y=\beta_{0}+\beta_{1}x+\beta_{2}(x-x_{k})I(x>x_{k})$
+
+Where the indicator function I() is 1 if $x>x_{k}$ and 0 if not.
+
+### Plot for $x_{k} = 18$
+
+```{r}
+spruce2 = within(spruce, x <- (BHDiameter - 18) * (BHDiameter > 18))
+spruce2
+lmp = lm(Height~BHDiameter + x, data = spruce2)
+tmp = summary(lmp)
+
+```
+
+```{r}
+
+names(tmp)
+mypiece = function(x, coef){
+  coef[1] + coef[2]*x + coef[3]*(x-18)*(x>18)
+}
+```
+
+
+
+```{r}
+plot(spruce, main = "Piecewise regression")
+mypiece(0, coef = tmp$coefficients[,"Estimate"])
+curve(mypiece(x, coef = tmp$coefficients[,"Estimate"]), add = TRUE, lwd = 2, col = "BLUE2",)
+abline(v=18)
+text(18,16,paste("R sq.=", round(tmp$r.squared, 4)))
+```
+
+## Task 8
+
+
+
+

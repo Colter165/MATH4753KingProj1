@@ -1,0 +1,175 @@
+---
+title: "Lab1"
+author: "Colter King"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Tasks
+
+## Task 1
+
+Find the working directory
+
+```{r}
+getwd()
+```
+
+## Task 2
+
+Read in the DDT data
+
+```{r}
+ddt <- read.csv("DDT.csv")
+head(ddt)
+```
+
+## Task 3
+
+  a. The qualitative variables are RIVER and SPECIES.
+  
+  b. The quantitative variables are MILE, LENGTH, WEIGHT, and DDT.
+  
+  c. There are three species in the data set.
+  
+  d. Subset the data so only Lumbass over 800 grams are accounted for.
+  
+```{r}
+LUMBASS800=with(ddt, ddt[WEIGHT>800 & SPECIES == "LMBASS",])
+summary(LUMBASS800)
+```
+
+  e.  Subset the data so only fish in the SCM river with DDT 4.0 and higher are accounted for.
+  
+```{r}
+SMC4 = with(ddt, ddt[DDT >4.0 & RIVER == "SCM",])
+summary(SMC4)
+```
+
+## Clicker Questions
+
+```{r}
+mean(ddt$LENGTH)
+``` 
+
+  a. The mean length is 42.81.
+  
+```{r}
+sd(ddt$WEIGHT)
+``` 
+
+  b. The standard deviation of the fish weights is 376.55.
+  
+  c. No,The values are correlated with the wrong variables as displayed.
+  
+  d. The last value for v/20 would be 1.0
+```{r}
+  v=1:20
+  v/20
+```
+
+
+## Task 4
+
+  A table of the rivers followed by a barplot of the same data.
+  
+```{r}
+sp=with(ddt,table(RIVER))
+sp
+barplot(sp,beside=TRUE,col=1:4)
+```
+
+  A table of the rivers crossed with the fish species followed by a bar graph of the same data.
+  
+```{r}
+spish=with(ddt,table(RIVER,SPECIES))
+spish
+barplot(spish,beside=TRUE,col=5:8)
+```
+
+## Task 5
+
+  A pie chart displaying the Species of fish.
+
+```{r}
+spec=with(ddt,table(SPECIES))
+pie(spec, col = 9:11)
+```
+
+  A pie chart of the Rivers fish were found.
+
+```{r}
+riv=with(ddt,table(RIVER))
+pie(riv, col = 12:15)
+```
+
+
+## Task 6
+
+  Box plot of the DDT data.
+
+```{r}
+boxplot(ddt$DDT, col="Green", main="DDT")
+```
+  
+  Box plot of the fish Weight.
+
+```{r}
+boxplot(ddt$WEIGHT, col="RED", main="Weight")
+```
+
+  Box plot of the fish Length.
+
+```{r}
+boxplot(ddt$LENGTH, col="BLUE", main="Length")
+```
+
+## Task 7
+
+  Co-plot comparing the Length vs. Weight of the fish by their River.
+
+```{r}
+with(ddt, coplot(LENGTH~WEIGHT|RIVER))
+```
+  
+  Co-plot comparing the DDT vs. Weight of the fish by their Species.
+
+```{r}
+with(ddt, coplot(DDT~WEIGHT|SPECIES))
+```
+
+
+## Task 8
+
+  Box plot of the Species vs. Weight catagorized by their River.
+
+```{r}
+library(ggplot2)
+g = ggplot(ddt, aes(x=SPECIES , y=WEIGHT, fill=RIVER))
+g = g + geom_boxplot() + ggtitle("Colter King")
+g
+```
+
+  Violin plot of the Species vs. Weight catagorized by their River.
+
+```{r}
+h = ggplot(ddt, aes(x=RIVER , y=LENGTH, fill=SPECIES))
+h = h + geom_violin() + ggtitle("Colter King")
+h
+```
+
+  Point plot of the Weight vs. Length of fish catagorized by their species.
+
+```{r}
+h = ggplot(ddt, aes(x=WEIGHT , y=LENGTH, fill=SPECIES, color = SPECIES))
+h = h + geom_point() + ggtitle("Colter King")
+h
+```

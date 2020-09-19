@@ -1,0 +1,129 @@
+---
+title: "Lab2"
+author: "Colter King"
+date: "9/3/2020"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Tasks
+
+
+
+## Task 1
+
+Find the working directory
+
+```{r}
+getwd()
+```
+
+## Task 2
+
+Read in EPAGAS deta and display the first 6 points.
+
+```{r}
+EPAGAS = read.csv("EPAGAS.csv")
+head(EPAGAS)
+```
+
+## Task 3
+
+Makes the object mpg
+
+```{r}
+mpg = EPAGAS$MPG
+head(mpg)
+```
+
+Stores z values for elements of mpg data
+
+```{r}
+z = ( (mpg - mean(mpg)) / sd(mpg) )
+head(z)
+```
+
+Shows the average of the z values of the data set is zero and their variance is 1.
+
+```{r}
+print(paste0("mean = ", round(mean(z), digits = 4)), quote = FALSE)
+```
+
+```{r}
+print(paste0("variance = ", var(z)), quote = FALSE)
+```
+
+The following mpg values are possible outliers to the data set
+
+```{r}
+mpg[abs(z) >= 2 & abs(z) <= 3]
+```
+
+The following mpg values are defined as outliers
+
+```{r}
+mpg[abs(z) >= 3]
+```
+
+
+
+```{r}
+mpgcolor = ifelse(abs(z)>3, "Red", 
+               ifelse(abs(z)>=2 & abs(z)<=3, "Blue", 
+                      "Black")) 
+
+library(lattice)
+dotplot(mpg, col = mpgcolor, xlab = "MPG", main = "MPG values")
+```
+
+## Task 4
+
+```{r}
+boxplot(mpg, main = "MPG Boxplot", col = "yellow2", xlab = "MPG", horizontal = TRUE, notch = TRUE)
+```
+
+### Chebyshev's Theorem
+Chebyshev's themoem represented by
+$$1 - \frac{1}{k^2} $$
+predicts what percentage of our data will fall within k standard deviations of the mean. Below we use the theorem 
+
+Chebyshev's predicted proportion of data within two standard deviations:
+
+```{r}
+k = 2
+chebyshev = 1 - 1/(k^2)
+chebyshev
+```
+
+
+The exact proportion of data within  standard deviations:
+```{r}
+extprop = length(mpg[abs(z) < 2]) / length(mpg)
+extprop
+```
+
+### Empirical Rule
+
+The empirical rule states that in any normal distribution nearly all data will fit within three standard deviations of the mean. It states that approximately 95% of the data will fall within two standard deviations if it is a normal distribution. 
+
+```{r}
+empirical = length(mpg[mean(mpg)-2*sd(mpg) < mpg & mpg < mean(mpg)+ 2*sd(mpg) ])/length(mpg)
+empirical
+```
+Based on the calculations above, the empirical rule is valid as 96% of the data falls within the two standard deviations the mean which is slightly greater than the predicted 95% the empirical rule defines. This means the data set follows a normal distribution which can be visualized by the boxplot in section 4 and the dot plot in section 3.
+
+
+
+
+
+
+
+
+
